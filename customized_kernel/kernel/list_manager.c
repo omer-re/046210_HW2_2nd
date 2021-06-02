@@ -13,7 +13,7 @@ list_t file_paths_list_head;
 void init_list(){
     if (was_initialized==0){
         printk("init - list initializing\n");
-        printk("init - run 3\n");
+        printk("init - run #\n");
         INIT_LIST_HEAD(&file_paths_list_head);
         privileged_procs_count=0;
         files_paths_count=0;

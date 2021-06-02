@@ -781,7 +781,10 @@ int do_fork(unsigned long clone_flags, unsigned long stack_start,
 
 
 	////////   OMER AND OZ CHANGE     /////////
-	//  if the process is privileged - increment counter
+	// p is the new thread, current is the parent thread
+    p->is_privileged = current->is_privileged;
+    printk("fork: parent process priv is %d, child process priv is %d\n",current->is_privileged, p->is_privileged )
+    //  if the process is privileged - increment counter
 	if (p->is_privileged==1){
         set_privileged_procs_count(1);
     }

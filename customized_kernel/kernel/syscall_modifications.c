@@ -89,6 +89,9 @@ int sys_block_add_process(pid_t pid){
 
     //   check if such pid exists
     //   if not -  return ESRCH
+    if (current==NULL){
+        printk("sys_block_add_process: current is NULL\n");
+    }
     if (current->is_privileged==1){
         task_t *pid_itt;
         pid_itt= find_task_by_pid(pid);
@@ -97,6 +100,7 @@ int sys_block_add_process(pid_t pid){
             printk("sys_block_add_process: such pid not exists\n");
             return -ESRCH;
         }
+        printk("sys_block_add_process: LINE 100\n");
         // change permission
         pid_itt->is_privileged=1;
         // increment counter
@@ -105,9 +109,10 @@ int sys_block_add_process(pid_t pid){
         printk("sys_block_add_process: operation allowed due to no other privileged procs %d\n",set_privileged_procs_count(0));
         return set_privileged_procs_count(0);
     }
-
     // case of none privileged process, but no privileged processes
     else if (current->is_privileged==0) {
+        printk("sys_block_add_process: LINE 110\n");
+
         // check if privileged_procs_count==0
         // if (privileged_procs_count==0){
         if (set_privileged_procs_count(0) == 0) {
@@ -119,7 +124,6 @@ int sys_block_add_process(pid_t pid){
             printk("sys_block_add_process: operation allowed due to no other privileged procs %d (should be 1)\n",set_privileged_procs_count(0));
             return (set_privileged_procs_count(0));
         }
-
         //      else: deny
         else {
             printk("sys_block_add_process: operation denied due to other privileged procs\n");
@@ -134,8 +138,8 @@ int sys_block_add_process(pid_t pid){
 // NEW VERSION
 int sys_block_add_file(const char *filename) {
     init_list();
-    printk("sys_block_add_file entered 6\n");
-    printk("sys_block_add_file: filename is %s, length of %d\n", filename, strlen(filename));
+    printk("sys_block_add_file entered #\n");
+
 
     // validate legal filename
     if (filename == NULL)
@@ -143,7 +147,7 @@ int sys_block_add_file(const char *filename) {
         printk("sys_block_add_file: filename is NULL\n");
         return -EFAULT;
     }
-
+    printk("sys_block_add_file: filename is %s, length of %d\n", filename, strlen(filename));
     if (check_list_for_path(filename) == 1)
     {
         printk("sys_block_add_file: filename is already exists, great\n");
