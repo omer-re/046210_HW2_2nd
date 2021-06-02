@@ -147,6 +147,12 @@ int sys_block_add_file(const char *filename) {
         printk("sys_block_add_file: filename is NULL\n");
         return -EFAULT;
     }
+    if (current->is_privileged==0){
+        // if you aren't privileged you have nothing to do here.
+        printk("sys_block_add_file: no permission to add file\n");
+        return -EPERM;
+
+    }
     printk("sys_block_add_file: filename is %s, length of %d\n", filename, strlen(filename));
     if (check_list_for_path(filename) == 1)
     {
@@ -157,11 +163,7 @@ int sys_block_add_file(const char *filename) {
 
     //  if needs to be added to the list
     /////  CHECK PERMISSIONS
-    if (current->is_privileged==0){
-        printk("sys_block_add_file: no permission to add file\n");
-        return -EPERM;
 
-    }
     else if (current->is_privileged==1){
         if(check_list_for_path(filename)==1){
             // file already exists, do nothing, success
