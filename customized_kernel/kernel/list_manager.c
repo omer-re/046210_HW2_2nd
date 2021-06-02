@@ -33,14 +33,11 @@ void destroy_list() {
         return;
     }
     list_t *pos;
-    list_t temp;
-    list_for_each(pos, &file_paths_list_head){
-        temp = *pos;
+    list_t *temp;
+    list_for_each_safe(pos, temp, &file_paths_list_head){
         Path_node_p a_node	= list_entry(pos, struct path_node, list_pointer);  // returns pointer to our struct
+        list_del(pos); // delete list_t object
         kfree(a_node);  // free what we dynamically allocated
-        //kfree(temp); // delete list_t object
-        pos = &temp;
-
     }
     // destroy list ended
     printk("DESTROY: list destroyed\n");

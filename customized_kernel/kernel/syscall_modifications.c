@@ -13,7 +13,7 @@
 ////  restricted_syscall_open
 long restricted_syscall_open(const char * filename, int flags, int mode){
     init_list();
-    printk("sys_open\n");
+    //printk("sys_open\n");
     int is_file_blocked=check_list_for_path(filename);
 
     if (is_file_blocked){   // file is in block list
@@ -27,11 +27,10 @@ long restricted_syscall_open(const char * filename, int flags, int mode){
         // file is in list and process has permission
         else if (current->is_privileged==1){
             printk("sys_open: file is blocked, process is privileged\n");
-            return sys_open(filename, flags, mode);
         }
     }
-    printk("sys_open: SHOULDN'T GET HERE\n");
-    return -EPERM;
+    printk("sys_open PASS\n");
+    return sys_open(filename, flags, mode);
 }
 
 
