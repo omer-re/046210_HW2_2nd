@@ -15,13 +15,13 @@
 #include <linux/namespace.h>
 #ifdef CONFIG_BSD_PROCESS_ACCT
 #include <linux/acct.h>
-#endif
-
 #include <asm/uaccess.h>
 #include <asm/pgtable.h>
 #include <asm/mmu_context.h>
 
 #include <linux/list_manager.h>
+#endif
+
 
 extern void sem_exit (void);
 extern struct task_struct *child_reaper;

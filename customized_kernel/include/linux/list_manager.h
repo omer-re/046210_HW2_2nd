@@ -13,8 +13,7 @@
 #ifndef _LIST_MANAGER_H
 #define _LIST_MANAGER_H
 
-list_t file_paths_list_head;
-
+extern list_t file_paths_list_head;
 typedef struct path_node {
     char file_path[PATH_MAX];
     list_t list_pointer;

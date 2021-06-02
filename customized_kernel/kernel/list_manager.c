@@ -7,9 +7,8 @@
 //// "global" list properties
 int files_paths_count;
 int privileged_procs_count;
-//Path_entry_p file_paths_list_head;
-
 int was_initialized =0;
+list_t file_paths_list_head;
 
 void init_list(){
     if (was_initialized==0){

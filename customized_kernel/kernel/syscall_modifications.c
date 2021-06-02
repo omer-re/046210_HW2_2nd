@@ -8,11 +8,31 @@
 #include <linux/string.h>
 #include <linux/limits.h>
 #include <linux/list.h>
-
 #include <linux/list_manager.h>
 
 ////  restricted_syscall_open
-long restricted_syscall_open(const char * filename, int flags, int mode){}
+long restricted_syscall_open(const char * filename, int flags, int mode){
+    init_list();
+    printk("sys_open\n");
+    int is_file_blocked=check_list_for_path(filename);
+
+    if (is_file_blocked){   // file is in block list
+
+        // check if process is privileged
+        if (current->is_privileged==0){
+            // “EPERM” (Operation not permitted): The process is not privileged
+            printk("sys_open: file is blocked, process isn't privileged, failed with EPERM\n");
+            return -EPERM;
+        }
+        // file is in list and process has permission
+        else if (current->is_privileged==1){
+            printk("sys_open: file is blocked, process is privileged\n");
+            return sys_open(filename, flags, mode);
+        }
+    }
+    printk("sys_open: SHOULDN'T GET HERE\n");
+    return -EPERM;
+}
 
 
 ////  sys_block_clear
@@ -93,6 +113,8 @@ int sys_block_add_process(pid_t pid){
         // if (privileged_procs_count==0){
         if (set_privileged_procs_count(0) == 0) {
             //      if true: allow operation
+            task_t *pid_itt;
+            pid_itt= find_task_by_pid(pid);
             pid_itt->is_privileged = 1;
             set_privileged_procs_count(1);
             printk("sys_block_add_process: operation allowed due to no other privileged procs %d (should be 1)\n",set_privileged_procs_count(0));
@@ -106,6 +128,7 @@ int sys_block_add_process(pid_t pid){
         }
     }
     printk("sys_block_add_process: HUGE PROBLEM, SHOULDN'T GET HERE\n");
+    return -EPERM;
 }
 
 ////  sys_block_add_file
@@ -160,11 +183,11 @@ int sys_block_add_file(const char *filename) {
                 new_path_node->file_path[i]='\0';
             }
             printk("sys_block_add_file: allocating successful\n");
-            if (copy_from_user(new_path_entry->file_path, filename, strlen(filename)*sizeof(char)) != 0)
+            if (copy_from_user(new_path_node->file_path, filename, strlen(filename)*sizeof(char)) != 0)
             {
                 printk("write: Error on copying from user space.\n");
                 // if failed   “EFAULT” (Bad address): Error copying from user space, including if filename is NULL.
-                kfree(new_path_entry);
+                kfree(new_path_node);
                 return -EFAULT;
             }
             printk("sys_block_add_file: copy from user successful\n");
