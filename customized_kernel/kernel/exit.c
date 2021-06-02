@@ -21,7 +21,7 @@
 #include <asm/pgtable.h>
 #include <asm/mmu_context.h>
 
-#include "linux/mechanism.h"
+#include <linux/list_manager.h>
 
 extern void sem_exit (void);
 extern struct task_struct *child_reaper;

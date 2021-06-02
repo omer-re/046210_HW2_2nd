@@ -2,18 +2,13 @@
 // Created by omer.reuveni on 6/2/2021.
 //
 #include <linux/kernel.h>
-#include <linux/string.h>
 #include <asm/uaccess.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
-#include <linux/fcntl.h>
 #include <linux/string.h>
+#include <linux/limits.h>
 #include <linux/list.h>
-#include <linux/errno.h>
-#include <linux/types.h>
-#include <linux/stat.h>
-#include <linux/fs.h>
-#include <asm/uaccess.h>
+
 
 #ifndef _LIST_MANAGER_H
 #define _LIST_MANAGER_H

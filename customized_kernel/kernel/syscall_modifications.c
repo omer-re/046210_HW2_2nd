@@ -2,18 +2,12 @@
 // Created by omer.reuveni on 6/2/2021.
 //
 #include <linux/kernel.h>
-#include <linux/string.h>
 #include <asm/uaccess.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
-#include <linux/fcntl.h>
 #include <linux/string.h>
+#include <linux/limits.h>
 #include <linux/list.h>
-#include <linux/errno.h>
-#include <linux/types.h>
-#include <linux/stat.h>
-#include <linux/fs.h>
-#include <asm/uaccess.h>
 
 #include <linux/list_manager.h>
 
@@ -77,14 +71,15 @@ int sys_block_add_process(pid_t pid){
     //   check if such pid exists
     //   if not -  return ESRCH
     if (current->is_privileged==1){
-        pid_itt= find_task_by(pid);
+        task_t *pid_itt;
+        pid_itt= find_task_by_pid(pid);
         if (pid_itt==NULL){
             // no matching pid
             printk("sys_block_add_process: such pid not exists\n");
             return -ESRCH;
         }
         // change permission
-        pid->is_privileged=1;
+        pid_itt->is_privileged=1;
         // increment counter
         set_privileged_procs_count(1);
         //return number of
@@ -98,7 +93,7 @@ int sys_block_add_process(pid_t pid){
         // if (privileged_procs_count==0){
         if (set_privileged_procs_count(0) == 0) {
             //      if true: allow operation
-            pid->is_privileged = 1;
+            pid_itt->is_privileged = 1;
             set_privileged_procs_count(1);
             printk("sys_block_add_process: operation allowed due to no other privileged procs %d (should be 1)\n",set_privileged_procs_count(0));
             return (set_privileged_procs_count(0));
@@ -118,7 +113,7 @@ int sys_block_add_process(pid_t pid){
 int sys_block_add_file(const char *filename) {
     init_list();
     printk("sys_block_add_file entered 6\n");
-    printk("sys_block_add_file: filename is %s, length of %d\n", filename, path_len);
+    printk("sys_block_add_file: filename is %s, length of %d\n", filename, strlen(filename));
 
     // validate legal filename
     if (filename == NULL)
@@ -153,7 +148,7 @@ int sys_block_add_file(const char *filename) {
             Path_node_p new_path_node =(Path_node_p) kmalloc(sizeof(struct path_node), GFP_KERNEL);
 
             // check allocation
-            if (new_path_entry == NULL)
+            if (new_path_node == NULL)
             {
                 // “ENOMEM” (Out of memory): Failure allocating memory.
                 printk("sys_block_add_file: failed allocating memory for new Path_entry_p\n");
@@ -162,7 +157,7 @@ int sys_block_add_file(const char *filename) {
             // initialize array
             int i=0;
             for (;i<PATH_MAX;i++){
-                new_path_entry->file_path[i]='\0';
+                new_path_node->file_path[i]='\0';
             }
             printk("sys_block_add_file: allocating successful\n");
             if (copy_from_user(new_path_entry->file_path, filename, strlen(filename)*sizeof(char)) != 0)
@@ -173,7 +168,7 @@ int sys_block_add_file(const char *filename) {
                 return -EFAULT;
             }
             printk("sys_block_add_file: copy from user successful\n");
-            list_add(&(new_path_node->list_pointer), file_paths_list_head);
+            list_add(&(new_path_node->list_pointer), &file_paths_list_head);
             // increment file path counter
             set_files_paths_count(1);
             printk("sys_block_add_file: new file added successfully\n");

@@ -15,16 +15,14 @@ void init_list(){
     if (was_initialized==0){
         printk("init - list initializing\n");
         printk("init - run 3\n");
-        INIT_LIST_HEAD(file_paths_list_head);
+        INIT_LIST_HEAD(&file_paths_list_head);
         privileged_procs_count=0;
         files_paths_count=0;
         was_initialized=1;
     }
 }
 
-Path_entry_p get_list_head(){
-    return file_paths_list_head;
-}
+
 
 
 
@@ -37,11 +35,13 @@ void destroy_list() {
     }
     list_t *pos;
     list_t temp;
-    list_for_each(pos, file_paths_list_head){
+    list_for_each(pos, &file_paths_list_head){
         temp = *pos;
         Path_node_p a_node	= list_entry(pos, struct path_node, list_pointer);  // returns pointer to our struct
         kfree(a_node);  // free what we dynamically allocated
-        list_del(temp); // delete list_t object
+        //kfree(temp); // delete list_t object
+        pos = &temp;
+
     }
     // destroy list ended
     printk("DESTROY: list destroyed\n");
@@ -69,10 +69,14 @@ int check_list_for_path(const char* pathName) {
         printk("SEARCH: list is empty\n");
         return 0;
     }
-    list_t pos;
-    list_for_each(pos, file_paths_list_head){
-        Path_node_p itt= list_entry(pos,struct path_node, file_paths_list_head);
-        if (!strcmp(list_entry->file_path, pathName))
+    list_t *pos;
+    list_for_each(pos, &file_paths_list_head){
+        //Path_node_p itt= list_entry(pos,struct path_node, file_paths_list_head);
+        Path_node_p a_node	= list_entry(pos, struct path_node, list_pointer);  // returns pointer to our struct
+
+
+
+            if (!strcmp(a_node->file_path, pathName))
         {
             printk("SEARCH: file is blocked \n");
             return 1;

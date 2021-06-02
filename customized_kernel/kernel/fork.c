@@ -29,7 +29,7 @@
 #include <asm/uaccess.h>
 #include <asm/mmu_context.h>
 
-#include <linux/mechanism.h>
+#include <linux/list_manager.h>
 
 /* The idle threads do not count.. */
 int nr_threads;
