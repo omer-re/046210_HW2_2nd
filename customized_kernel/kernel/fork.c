@@ -787,6 +787,8 @@ int do_fork(unsigned long clone_flags, unsigned long stack_start,
     //  if the process is privileged - increment counter
 	if (p->is_privileged==1){
         set_privileged_procs_count(1);
+        // TODO: add new proc to privileged queue
+        // set new_jiffies to current time
     }
     ////////   END OF OMER AND OZ CHANGE     /////////
 

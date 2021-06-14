@@ -454,6 +454,12 @@ struct task_struct {
 
 /* privileged info */
 	int is_privileged;  // 0 = regular, 1 = privileged
+	// privileged seniority // TODO: change it to the right number of jiffies it inherited
+	/*
+	 * insert logic from here : https://i.imgur.com/tCOlWCS.png
+	 * */
+    extern unsigned long priv_jiffies
+
 };
 
 /*
