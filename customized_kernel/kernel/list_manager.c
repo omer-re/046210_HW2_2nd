@@ -72,10 +72,7 @@ int check_list_for_path(const char *pathName) {
     {
         //Path_node_p itt= list_entry(pos,struct path_node, file_paths_list_head);
         Path_node_p
-        a_node = list_entry(pos,
-        struct path_node, list_pointer);  // returns pointer to our struct
-
-
+        a_node = list_entry(pos,struct path_node, list_pointer);  // returns pointer to our struct
 
         if (!strcmp(a_node->file_path, pathName))
         {

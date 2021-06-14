@@ -117,7 +117,7 @@ int sys_block_add_process(pid_t pid) {
         set_privileged_procs_count(1);
         // TODO: take it from regular_proc_queue insert to privileged_queue
         // if set to priv==1 set new_jiffies to current time
-        
+
         //return number of
         printk("sys_block_add_process: operation allowed due to no other privileged procs %d\n",
                set_privileged_procs_count(0));
