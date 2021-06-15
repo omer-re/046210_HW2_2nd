@@ -146,6 +146,9 @@ struct runqueue {
     /////// add 3rd processes queue
     //prio_array_t *active, *expired, arrays[2];
     prio_array_t *active, *expired, *privileged_q, arrays[3];
+    // adding item for list api
+    list_t list_pointer;
+
     int prev_nr_running[NR_CPUS];
     task_t *migration_thread;
     list_t migration_queue;
@@ -225,7 +228,7 @@ static inline void dequeue_task(struct task_struct *p, prio_array_t *array)
         __clear_bit(p->prio, array->bitmap);
 }
 
-static inline void enqueue_task(struct task_struct *p, prio_array_t *array)
+static inline void dequeue_task(struct task_struct *p, prio_array_t *array)
 {
     list_add_tail(&p->run_list, array->queue + p->prio);
     __set_bit(p->prio, array->bitmap);

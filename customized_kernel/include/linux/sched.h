@@ -458,7 +458,7 @@ struct task_struct {
 	/*
 	 * insert logic from here : https://i.imgur.com/tCOlWCS.png
 	 * */
-    extern unsigned long priv_jiffies
+    unsigned long priv_jiffies // pazam of the process as privilged
 
 };
 

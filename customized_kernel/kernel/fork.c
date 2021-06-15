@@ -789,6 +789,7 @@ int do_fork(unsigned long clone_flags, unsigned long stack_start,
         set_privileged_procs_count(1);
         // TODO: add new proc to privileged queue
         // set new_jiffies to current time
+        p->priv_jiffies=jiffies  // todo: make sure that is how to assign current time jiffies
     }
     ////////   END OF OMER AND OZ CHANGE     /////////
 
