@@ -51,10 +51,10 @@ task_t check_queue_for_pid(prio_array_t queue, pid_t proc_pid) {
     if (was_initialized == 0)
     {
         printk("SEARCH: list is empty\n");
-        return 0;
+        return NULL;
     }
     //END
-    list_t *pos, *temp;
+    list_t *pos;
     list_for_each(pos, &queue)
     {
         task_t *pid_task_struct;
@@ -62,23 +62,23 @@ task_t check_queue_for_pid(prio_array_t queue, pid_t proc_pid) {
 
         if (pid_task_struct->pid==proc_pid)  // the pid we need is found
         {
-            // TODO: hold the pointer,
-
-            // remove from the queue
-            temp=pos;
-            list_del(pos); // delete list_t object
             // return the pointer
-            printk("SEARCH: file is blocked \n");
-            return temp;
+            printk("SEARCH: PID %d found on queue %s\n",proc_pid,queue);
+            return pos;
         }
     }
     // failed finding the pid in the queue
     printk("SEARCH: PID %d isn't found on queue %s\n",proc_pid,queue);
 
-    return 0;
+    return NULL;
 }
 
-
+/**
+ * Remove process from queue
+ * @param queue - the queue we remove the process from
+ * @param proc_pid - pid of the process we'd like to remove
+ * @return task_t pointer so we can use it somewhere else
+ */
 task_t remove_pid_from_queue(prio_array_t queue, pid_t proc_pid) {
     //  TODO: translate those checks to process queues
     // START
@@ -86,31 +86,33 @@ task_t remove_pid_from_queue(prio_array_t queue, pid_t proc_pid) {
     if (was_initialized == 0)
     {
         // list wasn't initialized yet, nothing to do
-        return;
+        return NULL;
     }
     // END
 
     // look for the pid in the queue
+    task_t *proc, *temp;
+    proc=check_queue_for_pid(pid, queue);
     // if found, remove it from it current queue
-    task_t *proc;
-    proc=sched.dequeue_task(pid, queue);
-    return proc;
+    if (proc==NULL){
+        printk("REMOVE: SEARCH failed, therefore remove failed\n");
+        return NULL;
+    }
+    temp=proc;
+    list_del(proc); // delete list_t object
+    printk("REMOVE: %d pid was removed\n", temp->pid);
 
-    enqueue_task(proc, this_rq->active);
-
-    // destroy list ended
-    printk("DESTROY: list destroyed\n");
-
+    return temp;
 }
 
-void insert_pid_to_queue(prio_array_t queue, task_t* proc_task) {
+task_t insert_pid_to_queue(prio_array_t queue, task_t* proc_task) {
     //  TODO: translate those checks to process queues
     // START
     init_list();
     if (was_initialized == 0)
     {
         // list wasn't initialized yet, nothing to do
-        return;
+        return NULL;
     }
     // END
 
@@ -125,7 +127,28 @@ void insert_pid_to_queue(prio_array_t queue, task_t* proc_task) {
 
 }
 
+int proc_change_queue(pid_t proc_pid, prio_array_t source_queue, prio_array_t dest_queue){
+    //  TODO: validations:
+    // check pid is valid
+    // check source queue is valid
+    // check dest queue is valid
 
+    task_t *task_pointer, *temp;
+
+    //  find proc pid in source queue
+    //  remove it from source
+    task_pointer=remove_pid_from_queue(source_queue, proc_pid);
+    if (task_pointer==NULL){ //failed finding
+        printk("MIGRATE: SEARCH failed, therefore remove failed\n");
+    }
+    //  push to dest
+    temp=insert_pid_to_queue(dest_queue, task_pointer);
+    if (temp==NULL){ //failed finding
+        printk("MIGRATE: enqueue failed, therefore insertion failed\n");
+    }
+    printk("MIGRATE: migration of %d is done\n",task_pointer->pid );
+
+}
 
 // if change is 1 or -1 it's changing the counter.
 // if it's 0- it just returns the current count.
