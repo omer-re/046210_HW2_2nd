@@ -663,8 +663,8 @@ kill_sl_info(int sig, struct siginfo *info, pid_t sess)
 inline int
 kill_proc_info(int sig, struct siginfo *info, pid_t pid)
 {
-    int error;
-    struct task_struct *p;
+    int error, res;
+    struct task_struct *p, *sender;
 
     read_lock(&tasklist_lock);
     p = find_task_by_pid(pid);
@@ -675,6 +675,16 @@ kill_proc_info(int sig, struct siginfo *info, pid_t pid)
             tg = find_task_by_pid(p->tgid);
             if (tg)
                 p = tg;
+        }
+        if (sig==-SIGTERM)  // TODO: make sure we need (-) before SIGTERM
+        {
+            sender = find_task_by_pid(info.si_pid);
+            //sender=find_task_by_pid(current->pid);
+            res = kill_inheritance_logic(sender, p);
+            if (res < 1)
+            {
+                printk("kill_proc_info: ERROR on logic.\n");
+            }
         }
         error = send_sig_info(sig, info, p);
     }

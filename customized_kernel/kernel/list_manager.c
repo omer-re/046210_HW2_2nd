@@ -5,19 +5,19 @@
 #include <linux/list_manager.h>
 
 //// "global" list properties
-int files_paths_count;
-int privileged_procs_count;
+//int files_paths_count;
+int privileged_procs_count=0;
 int was_initialized = 0;
-list_t file_paths_list_head;
+//list_t file_paths_list_head;
 
 void init_list() {
     if (was_initialized == 0)
     {
         printk("init - list initializing\n");
         printk("init - run #\n");
-        INIT_LIST_HEAD(&file_paths_list_head);
+        //INIT_LIST_HEAD(&file_paths_list_head);
         privileged_procs_count = 0;
-        files_paths_count = 0;
+        //files_paths_count = 0;
         was_initialized = 1;
     }
 }
@@ -182,6 +182,8 @@ int proc_upgrade_queue(pid_t proc_pid){
 // if change is 1 or -1 it's changing the counter.
 // if it's 0- it just returns the current count.
 int set_files_paths_count(int change) {
+//    init_list();
+
     files_paths_count += change;
     return files_paths_count;
 }
@@ -189,6 +191,8 @@ int set_files_paths_count(int change) {
 // if change is 1 or -1 it's changing the counter.
 // if it's 0- it just returns the current count.
 int set_privileged_procs_count(int change) {
+//    init_list();
+
     privileged_procs_count += change;
     return privileged_procs_count;
 }
@@ -196,14 +200,7 @@ int set_privileged_procs_count(int change) {
 
 
 task_t check_queue_for_senior_process(list_t priv_list) {
-    //  TODO: translate those checks to process queues
-    // START
-    if (was_initialized == 0)
-    {
-        printk("check_queue_for_senior_process: list is empty\n");
-        return NULL;
-    }
-    //END
+
     long min_jiffies=-1; // holds the current min while scanning
     task_t * senior_proc;
     int flag_first=0;
@@ -233,4 +230,31 @@ task_t check_queue_for_senior_process(list_t priv_list) {
     }
     printk("check_queue_for_senior_process: returning pid %d with age of %d jiffies\n", senior_proc->pid, senior_proc->priv_jiffies);
     return senior_proc;
+}
+
+
+
+int kill_inheritance_logic(task_t* sender, task_t* receiver){
+    if (sender->is_privileged==0 && receiver->is_privileged==0){
+        printk("kill_inheritance_logic: A.P==0&&B.P==0. use regular\n");
+        return 0;
+    }
+    if (sender->is_privileged==0 && receiver->is_privileged==1){
+        printk("kill_inheritance_logic: A.P==0&&B.P==1. A.P=B.P=1\n");
+        //
+        proc_upgrade_queue(sender->pid)
+        // receiver will make exit() as any regular process.
+        return 1;
+    }
+    if (sender->is_privileged==1 && receiver->is_privileged==1){
+        printk("kill_inheritance_logic: A.P==1&&B.P==1. check if A upgrades\n");
+        if (receiver->priv_jiffies < sender->priv_jiffies){  // receiver is older
+            sender->priv_jiffies=receiver->priv_jiffies;
+        }
+        // else do nothing, sender will continue as usual, receiver will die on exit()
+        return 1;
+    }
+    printk("kill_inheritance_logic: ERROR, SHOULDN'T GET HERE!\n");
+
+    return -1;
 }
