@@ -898,7 +898,7 @@ asmlinkage void schedule(void)
     ///// if queue= priority_list  (99?)
     /// -> there are priv procs in the system
 
-    if(queue = array->queue[99] ){
+    if(queue = array->queue[PRIVILEGED_PRIO] ){
         next= list_manager.check_queue_for_senior_process(queue) ;
     }
     else {
