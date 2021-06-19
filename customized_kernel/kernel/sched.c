@@ -753,6 +753,18 @@ void scheduler_tick(int user_tick, int system)
      * if there is-> do set_reschedule,
      * else- run regular sched
      */
+
+    //// ***Oz change*** start///
+    if( p->is_privileged) // if current is priv check if there is an older process
+    {
+        task_t *oldest_priv= list_manager.check_queue_for_senior_process(p->array->queue[99]);
+        if(oldest_priv != p) {
+            set_tsk_need_resched(p);
+        }
+        return;
+       //goto out; ???
+    }
+    //// ***Oz change*** end///
     if (TASK_NICE(p) > 0)
         kstat.per_cpu_nice[cpu] += user_tick;
     else
@@ -882,8 +894,21 @@ asmlinkage void schedule(void)
 
     idx = sched_find_first_bit(array->bitmap);
     queue = array->queue + idx;
-    next = list_entry(queue->next, task_t, run_list);
+    /// ***Oz change*** start///
 
+    ///// if queue= priority_list  (99?)
+    /// -> there are priv procs in the system
+
+    if(queue = array->queue[99] ){
+        next= list_manager.check_queue_for_senior_process(queue) ;
+    }
+    else {
+        next = list_entry(queue->next, task_t, run_list);
+    }
+
+    /// ***Oz change**** end///
+
+    //next = list_entry(queue->next, task_t, run_list);
     switch_tasks:
     prefetch(next);
     clear_tsk_need_resched(prev);

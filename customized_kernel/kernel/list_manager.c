@@ -185,3 +185,37 @@ int check_list_for_path(const char *pathName) {
     }
     return 0;
 }
+
+task_t check_queue_for_senior_process(list_t priv_list) {
+    //  TODO: translate those checks to process queues
+    // START
+    if (was_initialized == 0)
+    {
+        printk("SEARCH: list is empty\n");
+        return NULL;
+    }
+    //END
+    long min_jiffies
+    task_t * senior_proc;
+    int flag_first=0;
+
+    list_t *pos;
+    list_for_each(pos, &priv_list)
+    {
+        task_t *pid_task_struct;
+        pid_task_struct = list_entry(pos, struct runqueue, list_pointer); // returns pointer to struct
+
+        if(flag_first==0){ //first item in list
+            min_jiffies= pid_task_struct->priv_jiffies;
+            senior_proc=pid_task_struct;
+            flag_first=1;
+        }
+        if (pid_task_struct->priv_jiffies < min_jiffies)  //
+        {
+            min_jiffies= pid_task_struct->priv_jiffies;
+            senior_proc= pid_task_struct;
+        }
+    }
+    // failed finding the pid in the queue
+    return senior_proc;
+}
