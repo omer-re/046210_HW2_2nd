@@ -566,6 +566,7 @@ extern struct exec_domain	default_exec_domain;
     alloc_lock:		SPIN_LOCK_UNLOCKED,				\
     journal_info:	NULL,						\
 	is_privileged:	NULL,						\
+	priv_jiffies:	NULL,						\
 }
 
 

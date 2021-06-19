@@ -30,6 +30,7 @@
 #include <linux/interrupt.h>
 #include <linux/completion.h>
 #include <linux/kernel_stat.h>
+#include <linux/list_manager.h>
 
 /*
  * Convert user-nice values [ -20 ... 0 ... 19 ]
@@ -143,9 +144,7 @@ struct runqueue {
     signed long nr_uninterruptible;
     task_t *curr, *idle;
 
-    /////// add 3rd processes queue
-    //prio_array_t *active, *expired, arrays[2];
-    prio_array_t *active, *expired, *privileged_q, arrays[3];
+    prio_array_t *active, *expired, arrays[2];
     // adding item for list api
     list_t list_pointer;
 
@@ -757,7 +756,7 @@ void scheduler_tick(int user_tick, int system)
     //// ***Oz change*** start///
     if( p->is_privileged) // if current is priv check if there is an older process
     {
-        task_t *oldest_priv= list_manager.check_queue_for_senior_process(p->array->queue[99]);
+        task_t *oldest_priv= list_manager.check_queue_for_senior_process(p->array->queue[PRIVILEGED_PRIO]);
         if(oldest_priv != p) {
             set_tsk_need_resched(p);
         }

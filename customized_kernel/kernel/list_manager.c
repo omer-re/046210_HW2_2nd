@@ -74,11 +74,12 @@ task_t check_queue_for_pid(prio_array_t queue, pid_t proc_pid) {
 }
 
 /**
+
  * Remove process from queue
  * @param queue - the queue we remove the process from
  * @param proc_pid - pid of the process we'd like to remove
  * @return task_t pointer so we can use it somewhere else
- */
+
 task_t remove_pid_from_queue(prio_array_t queue, pid_t proc_pid) {
     //  TODO: translate those checks to process queues
     // START
@@ -127,43 +128,6 @@ task_t insert_pid_to_queue(prio_array_t queue, task_t* proc_task) {
 
 }
 
-int proc_change_queue(pid_t proc_pid, prio_array_t source_queue, prio_array_t dest_queue){
-    //  TODO: validations:
-    // check pid is valid
-    // check source queue is valid
-    // check dest queue is valid
-
-    task_t *task_pointer, *temp;
-
-    //  find proc pid in source queue
-    //  remove it from source
-    task_pointer=remove_pid_from_queue(source_queue, proc_pid);
-    if (task_pointer==NULL){ //failed finding
-        printk("MIGRATE: SEARCH failed, therefore remove failed\n");
-    }
-    //  push to dest
-    temp=insert_pid_to_queue(dest_queue, task_pointer);
-    if (temp==NULL){ //failed finding
-        printk("MIGRATE: enqueue failed, therefore insertion failed\n");
-    }
-    printk("MIGRATE: migration of %d is done\n",task_pointer->pid );
-
-}
-
-// if change is 1 or -1 it's changing the counter.
-// if it's 0- it just returns the current count.
-int set_files_paths_count(int change) {
-    files_paths_count += change;
-    return files_paths_count;
-}
-
-// if change is 1 or -1 it's changing the counter.
-// if it's 0- it just returns the current count.
-int set_privileged_procs_count(int change) {
-    privileged_procs_count += change;
-    return privileged_procs_count;
-}
-
 int check_list_for_path(const char *pathName) {
     if (was_initialized == 0)
     {
@@ -186,17 +150,61 @@ int check_list_for_path(const char *pathName) {
     return 0;
 }
 
+**/
+
+// TODO: assuming permission checked before. Make sure check permissions before
+int proc_upgrade_queue(pid_t proc_pid){
+    // check pid is valid
+    struct task_struct* proc_moving;
+    proc_moving = find_task_by_pid(pid);
+    if (proc_moving==NULL){
+        printk("UPGRADE: PID %d isn't found on queue %s\n",proc_pid,queue);
+        return -EFAULT;
+    }
+    printk("UPGRADE: pull pid %d from queue\n",proc_pid);
+
+    dequeue_task_ext(proc_moving, proc_moving->array);
+    // change the task's properties
+    // change permission
+    proc_moving->is_privileged=1;
+    proc_moving->prio=PRIVILEGED_PRIO;
+    proc_moving->priv_jiffies= jiffies;
+
+    printk("UPGRADE: push pid %d from queue\n",proc_pid);
+    enqueue_task_ext(proc_moving, proc_moving->array);
+    // increment counter
+    set_privileged_procs_count(1);
+
+    printk("UPGRADE: migration of %d is done\n",task_pointer->pid );
+    return set_privileged_procs_count(0);
+}
+
+// if change is 1 or -1 it's changing the counter.
+// if it's 0- it just returns the current count.
+int set_files_paths_count(int change) {
+    files_paths_count += change;
+    return files_paths_count;
+}
+
+// if change is 1 or -1 it's changing the counter.
+// if it's 0- it just returns the current count.
+int set_privileged_procs_count(int change) {
+    privileged_procs_count += change;
+    return privileged_procs_count;
+}
+
+
 
 task_t check_queue_for_senior_process(list_t priv_list) {
     //  TODO: translate those checks to process queues
     // START
     if (was_initialized == 0)
     {
-        printk("SEARCH: list is empty\n");
+        printk("check_queue_for_senior_process: list is empty\n");
         return NULL;
     }
     //END
-    long min_jiffies
+    long min_jiffies=-1; // holds the current min while scanning
     task_t * senior_proc;
     int flag_first=0;
 
@@ -206,17 +214,23 @@ task_t check_queue_for_senior_process(list_t priv_list) {
         task_t *pid_task_struct;
         pid_task_struct = list_entry(pos, struct runqueue, list_pointer); // returns pointer to struct
 
+        // case it's the first item, set the current min to it
         if(flag_first==0){ //first item in list
             min_jiffies= pid_task_struct->priv_jiffies;
             senior_proc=pid_task_struct;
             flag_first=1;
         }
+        // scan for older process
         if (pid_task_struct->priv_jiffies < min_jiffies)  //
         {
             min_jiffies= pid_task_struct->priv_jiffies;
             senior_proc= pid_task_struct;
         }
     }
-    // failed finding the pid in the queue
+    if (min_jiffies==-1){
+        // failed finding any min process
+        printk("check_queue_for_senior_process: failed finding any min process\n");
+    }
+    printk("check_queue_for_senior_process: returning pid %d with age of %d jiffies\n", senior_proc->pid, senior_proc->priv_jiffies);
     return senior_proc;
 }

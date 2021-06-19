@@ -13,6 +13,8 @@
 #ifndef _LIST_MANAGER_H
 #define _LIST_MANAGER_H
 
+#define PRIVILEGED_PRIO 99
+
 extern list_t file_paths_list_head;
 typedef struct path_node {
     char file_path[PATH_MAX];
@@ -28,6 +30,6 @@ extern int was_initialized;
 int set_files_paths_count(int change);
 int set_privileged_procs_count(int change);
 void init_list(void);
-int check_list_for_path(const char* pathName);
+//int check_list_for_path(const char* pathName);
 void destroy_list(void);
 #endif //LIST_MANAGER_H

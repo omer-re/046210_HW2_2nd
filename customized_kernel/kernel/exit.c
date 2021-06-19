@@ -533,7 +533,7 @@ fake_volatile:
     //  if the process is privileged - decrement counter
     if (tsk->is_privileged==1){
         set_privileged_procs_count(-1);
-        // TODO: remove from privileged queue
+        // TODO: should it be manually removed from privileged queue?
     }
     /////////   END OF OMER AND OZ CHANGE     /////////
 

@@ -100,6 +100,7 @@ int sys_block_add_process(pid_t pid) {
     {
         printk("sys_block_add_process: current is NULL\n");
     }
+
     if (current->is_privileged == 1)
     {
         task_t *pid_itt;
@@ -111,19 +112,17 @@ int sys_block_add_process(pid_t pid) {
             return -ESRCH;
         }
         printk("sys_block_add_process: LINE 100\n");
-        // change permission
-        pid_itt->is_privileged = 1;
-        // increment counter
-        set_privileged_procs_count(1);
-        // TODO: take it from regular_proc_queue insert to privileged_queue
-        // if set to priv==1 set new_jiffies to current time
 
-        //return number of
-        printk("sys_block_add_process: operation allowed due to no other privileged procs %d\n",
-               set_privileged_procs_count(0));
+        // operation allowed:
+        printk("sys_block_add_process: Operation allowed\n");
+        // take it from regular_proc_queue insert to privileged_queue
+        proc_upgrade_queue(pid_itt);
+
+        printk("sys_block_add_process: operation allowed since request came from privileged process\n");
         return set_privileged_procs_count(0);
     }
-        // case of none privileged process, but no privileged processes
+
+    // case of none privileged process, but no privileged processes exists
     else if (current->is_privileged == 0)
     {
         printk("sys_block_add_process: LINE 110\n");
@@ -135,8 +134,18 @@ int sys_block_add_process(pid_t pid) {
             //      if true: allow operation
             task_t *pid_itt;
             pid_itt = find_task_by_pid(pid);
-            pid_itt->is_privileged = 1;
-            set_privileged_procs_count(1);
+            if (pid_itt == NULL)
+            {
+                // no matching pid
+                printk("sys_block_add_process: such pid not exists\n");
+                return -ESRCH;
+            }
+
+            // operation allowed:
+            printk("sys_block_add_process: Operation allowed\n");
+            // take it from regular_proc_queue insert to privileged_queue
+            proc_upgrade_queue(pid_itt);
+
             printk("sys_block_add_process: operation allowed due to no other privileged procs %d (should be 1)\n",
                    set_privileged_procs_count(0));
             return (set_privileged_procs_count(0));
@@ -152,6 +161,7 @@ int sys_block_add_process(pid_t pid) {
     return -EPERM;
 }
 
+/**
 ////  sys_block_add_file
 // NEW VERSION
 int sys_block_add_file(const char *filename) {
@@ -231,4 +241,4 @@ int sys_block_add_file(const char *filename) {
     printk("sys_block_add_file: HUGE PROBLEM, SHOULDN'T GET HERE #2\n");
     return -1;
 }
-
+**/

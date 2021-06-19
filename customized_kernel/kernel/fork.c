@@ -783,13 +783,16 @@ int do_fork(unsigned long clone_flags, unsigned long stack_start,
 	////////   OMER AND OZ CHANGE     /////////
 	// p is the new thread, current is the parent thread
     p->is_privileged = current->is_privileged;
+    p->priv_jiffies= NULL;
     printk("fork: parent process priv is %d, child process priv is %d\n",current->is_privileged, p->is_privileged );
     //  if the process is privileged - increment counter
 	if (p->is_privileged==1){
         set_privileged_procs_count(1);
-        // TODO: add new proc to privileged queue
+        p->is_privileged=1;
+        p->prio=PRIVILEGED_PRIO;
+        p->priv_jiffies= jiffies;
+        // TODO: should it be added manually to queue or is it automatically goes to prio?
         // set new_jiffies to current time
-        p->priv_jiffies=jiffies  // todo: make sure that is how to assign current time jiffies
     }
     ////////   END OF OMER AND OZ CHANGE     /////////
 
