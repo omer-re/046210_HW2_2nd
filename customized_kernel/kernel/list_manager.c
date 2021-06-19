@@ -6,7 +6,7 @@
 
 //// "global" list properties
 int files_paths_count;
-int privileged_procs_count=0;
+int privileged_procs_count;
 int was_initialized = 0;
 list_t file_paths_list_head;
 
@@ -36,7 +36,8 @@ void destroy_list() {
     list_for_each_safe(pos, temp, &file_paths_list_head)
     {
         Path_node_p
-        a_node = list_entry(pos, struct path_node, list_pointer);  // returns pointer to our struct
+        a_node = list_entry(pos,
+        struct path_node, list_pointer);  // returns pointer to our struct
         list_del(pos); // delete list_t object
         kfree(a_node);  // free what we dynamically allocated
     }
@@ -73,60 +74,7 @@ task_t check_queue_for_pid(prio_array_t queue, pid_t proc_pid) {
     return NULL;
 }
 
-/**
 
- * Remove process from queue
- * @param queue - the queue we remove the process from
- * @param proc_pid - pid of the process we'd like to remove
- * @return task_t pointer so we can use it somewhere else
-
-task_t remove_pid_from_queue(prio_array_t queue, pid_t proc_pid) {
-    //  TODO: translate those checks to process queues
-    // START
-    init_list();
-    if (was_initialized == 0)
-    {
-        // list wasn't initialized yet, nothing to do
-        return NULL;
-    }
-    // END
-
-    // look for the pid in the queue
-    task_t *proc, *temp;
-    proc=check_queue_for_pid(pid, queue);
-    // if found, remove it from it current queue
-    if (proc==NULL){
-        printk("REMOVE: SEARCH failed, therefore remove failed\n");
-        return NULL;
-    }
-    temp=proc;
-    list_del(proc); // delete list_t object
-    printk("REMOVE: %d pid was removed\n", temp->pid);
-
-    return temp;
-}
-
-task_t insert_pid_to_queue(prio_array_t queue, task_t* proc_task) {
-    //  TODO: translate those checks to process queues
-    // START
-    init_list();
-    if (was_initialized == 0)
-    {
-        // list wasn't initialized yet, nothing to do
-        return NULL;
-    }
-    // END
-
-    // look for the pid in the queue
-    // if found, remove it from it current queue
-    task_t *proc;
-    proc=sched.enqueue_task(proc_task, queue);
-    // TODO: how to validate success?
-    printk("insert_pid_to_queue: insert_pid_to_queue ended\n");
-    return proc;
-
-
-}
 
 int check_list_for_path(const char *pathName) {
     if (was_initialized == 0)
@@ -139,7 +87,10 @@ int check_list_for_path(const char *pathName) {
     {
         //Path_node_p itt= list_entry(pos,struct path_node, file_paths_list_head);
         Path_node_p
-        a_node = list_entry(pos,struct path_node, list_pointer);  // returns pointer to our struct
+        a_node = list_entry(pos,
+        struct path_node, list_pointer);  // returns pointer to our struct
+
+
 
         if (!strcmp(a_node->file_path, pathName))
         {
@@ -150,7 +101,6 @@ int check_list_for_path(const char *pathName) {
     return 0;
 }
 
-**/
 
 // TODO: assuming permission checked before. Make sure check permissions before
 int proc_upgrade_queue(pid_t proc_pid){
