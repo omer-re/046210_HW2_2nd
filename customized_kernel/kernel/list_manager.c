@@ -46,34 +46,6 @@ void destroy_list() {
 
 }
 
-task_t check_queue_for_pid(prio_array_t queue, pid_t proc_pid) {
-    //  TODO: translate those checks to process queues
-    // START
-    if (was_initialized == 0)
-    {
-        printk("SEARCH: list is empty\n");
-        return NULL;
-    }
-    //END
-    list_t *pos;
-    list_for_each(pos, &queue)
-    {
-        task_t *pid_task_struct;
-        pid_task_struct = list_entry(pos, struct runqueue, list_pointer); // returns pointer to struct
-
-        if (pid_task_struct->pid==proc_pid)  // the pid we need is found
-        {
-            // return the pointer
-            printk("SEARCH: PID %d found on queue %s\n",proc_pid,queue);
-            return pos;
-        }
-    }
-    // failed finding the pid in the queue
-    printk("SEARCH: PID %d isn't found on queue %s\n",proc_pid,queue);
-
-    return NULL;
-}
-
 
 
 int check_list_for_path(const char *pathName) {
@@ -102,7 +74,7 @@ int check_list_for_path(const char *pathName) {
 }
 
 
-// TODO: assuming permission checked before. Make sure check permissions before
+// Assuming permission checked before. Make sure check permissions before
 int proc_upgrade_queue(pid_t proc_pid){
     // check pid is valid
     struct task_struct* proc_moving;
@@ -149,14 +121,14 @@ int set_privileged_procs_count(int change) {
 
 
 
-task_t check_queue_for_senior_process(list_t priv_list) {
+task_t check_queue_for_senior_process(task_t a_task) {
 
     long min_jiffies=-1; // holds the current min while scanning
     task_t * senior_proc;
     int flag_first=0;
 
     list_t *pos;
-    list_for_each(pos, &priv_list)
+    list_for_each(pos, &a_task)
     {
         task_t *pid_task_struct;
         pid_task_struct = list_entry(pos, struct runqueue, list_pointer); // returns pointer to struct

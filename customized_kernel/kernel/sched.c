@@ -756,7 +756,8 @@ void scheduler_tick(int user_tick, int system)
     //// ***Oz change*** start///
     if( p->is_privileged) // if current is priv check if there is an older process
     {
-        task_t *oldest_priv= list_manager.check_queue_for_senior_process(p->array->queue[PRIVILEGED_PRIO]);
+        task_t *oldest_priv;
+        oldest_priv = check_queue_for_senior_process(p->array->queue[PRIVILEGED_PRIO]);
         if(oldest_priv != p) {
             set_tsk_need_resched(p);
         }
@@ -898,8 +899,8 @@ asmlinkage void schedule(void)
     ///// if queue= priority_list  (99?)
     /// -> there are priv procs in the system
 
-    if(queue = array->queue[PRIVILEGED_PRIO] ){
-        next= list_manager.check_queue_for_senior_process(queue) ;
+    if(queue == array->queue[PRIVILEGED_PRIO] ){
+        next= check_queue_for_senior_process(queue) ;
     }
     else {
         next = list_entry(queue->next, task_t, run_list);
