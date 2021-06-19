@@ -186,6 +186,7 @@ int check_list_for_path(const char *pathName) {
     return 0;
 }
 
+
 task_t check_queue_for_senior_process(list_t priv_list) {
     //  TODO: translate those checks to process queues
     // START
