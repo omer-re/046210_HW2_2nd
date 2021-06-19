@@ -5,19 +5,19 @@
 #include <linux/list_manager.h>
 
 //// "global" list properties
-//int files_paths_count;
+int files_paths_count;
 int privileged_procs_count=0;
 int was_initialized = 0;
-//list_t file_paths_list_head;
+list_t file_paths_list_head;
 
 void init_list() {
     if (was_initialized == 0)
     {
         printk("init - list initializing\n");
         printk("init - run #\n");
-        //INIT_LIST_HEAD(&file_paths_list_head);
+        INIT_LIST_HEAD(&file_paths_list_head);
         privileged_procs_count = 0;
-        //files_paths_count = 0;
+        files_paths_count = 0;
         was_initialized = 1;
     }
 }

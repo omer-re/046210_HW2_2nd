@@ -37,55 +37,7 @@ long restricted_syscall_open(const char *filename, int flags, int mode) {
 }
 
 
-////  sys_block_clear
-int sys_block_clear(Path_node_p path_list_head) {
 
-    init_list();
-    printk("block_clear: entered\n");
-
-    if (current->is_privileged != 1)
-    {
-        printk("block_clear: proc isn't privileged, can't clear list\n");
-        return -EPERM;
-    }
-
-    else if (set_privileged_procs_count(0) == 0)
-    {
-        // no need to do nothing. no files.
-        printk("block_clear: no need to do nothing. no files.\n");
-
-        return 0;
-    }
-
-    else if (set_files_paths_count(0) > 0)
-    {
-        printk("block_clear: some files in list. free them.\n");
-        destroy_list();
-        return 0;
-    }
-
-    printk("block_clear: logic failure, shouldn't get here.\n");
-
-    return -1;
-
-
-}
-
-////  sys_block_query
-int sys_block_query(const char *filename) {
-    printk("block_query: entered\n");
-
-    int res = check_list_for_path(filename);
-    if (res == 0)
-    {
-        printk("block_query: file doesn't exists\n");
-    }
-    else if (res == 1)
-    {
-        printk("block_query: file exists\n");
-    }
-    return res;
-}
 
 ////  sys_block_add_process
 int sys_block_add_process(pid_t pid) {
@@ -242,3 +194,56 @@ int sys_block_add_file(const char *filename) {
     return -1;
 }
 **/
+
+
+// stuff from HW2
+
+////  sys_block_clear
+int sys_block_clear(Path_node_p path_list_head) {
+
+    init_list();
+    printk("block_clear: entered\n");
+
+    if (current->is_privileged != 1)
+    {
+        printk("block_clear: proc isn't privileged, can't clear list\n");
+        return -EPERM;
+    }
+
+    else if (set_privileged_procs_count(0) == 0)
+    {
+        // no need to do nothing. no files.
+        printk("block_clear: no need to do nothing. no files.\n");
+
+        return 0;
+    }
+
+    else if (set_files_paths_count(0) > 0)
+    {
+        printk("block_clear: some files in list. free them.\n");
+        destroy_list();
+        return 0;
+    }
+
+    printk("block_clear: logic failure, shouldn't get here.\n");
+
+    return -1;
+
+
+}
+
+////  sys_block_query
+int sys_block_query(const char *filename) {
+    printk("block_query: entered\n");
+
+    int res = check_list_for_path(filename);
+    if (res == 0)
+    {
+        printk("block_query: file doesn't exists\n");
+    }
+    else if (res == 1)
+    {
+        printk("block_query: file exists\n");
+    }
+    return res;
+}
