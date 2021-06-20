@@ -79,6 +79,8 @@ extern int last_pid;
 extern unsigned long nr_running(void);
 extern unsigned long nr_uninterruptible(void);
 
+
+
 #include <linux/fs.h>
 #include <linux/time.h>
 #include <linux/param.h>
@@ -1009,6 +1011,10 @@ static inline int need_resched(void)
 {
 	return unlikely(current->need_resched);
 }
+
+void enqueue_task_ext(struct task_struct *p, prio_array_t *array);
+void dequeue_task_ext(struct task_struct *p, prio_array_t *array);
+
 
 #endif /* __KERNEL__ */
 

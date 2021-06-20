@@ -1709,6 +1709,18 @@ void __init sched_init(void)
     enter_lazy_tlb(&init_mm, current, smp_processor_id());
 }
 
+//// wrapper functions ///
+void dequeue_task_ext(struct task_struct *p, prio_array_t *array){
+    dequeue_task(p, array);
+    return;
+}
+
+void enqueue_task_ext(struct task_struct *p, prio_array_t *array){
+    enqueue_task(p, array);
+    return;
+}
+///
+
 #if CONFIG_SMP
 
 /*
