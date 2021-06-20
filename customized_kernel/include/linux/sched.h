@@ -995,6 +995,7 @@ static inline void set_need_resched(void)
 	current->need_resched = 1;
 }
 
+
 static inline void clear_need_resched(void)
 {
 	current->need_resched = 0;

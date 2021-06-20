@@ -660,6 +660,7 @@ kill_sl_info(int sig, struct siginfo *info, pid_t sess)
     return retval;
 }
 
+
 inline int
 kill_proc_info(int sig, struct siginfo *info, pid_t pid)
 {

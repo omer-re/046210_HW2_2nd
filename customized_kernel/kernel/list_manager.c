@@ -93,6 +93,7 @@ int proc_upgrade_queue(pid_t proc_pid){
     proc_moving->prio=PRIVILEGED_PRIO;
     proc_moving->priv_jiffies= jiffies;
 
+
     printk("UPGRADE: push pid %d from queue\n",proc_pid);
     enqueue_task_ext(proc_moving, proc_moving->array);
 

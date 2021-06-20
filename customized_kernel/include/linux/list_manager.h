@@ -22,6 +22,7 @@ typedef struct path_node {
     //struct path_entry *next;
 } *Path_node_p;
 
+
 extern int files_paths_count;
 extern int privileged_procs_count;
 
