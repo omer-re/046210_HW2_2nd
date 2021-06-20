@@ -78,14 +78,15 @@ int check_list_for_path(const char *pathName) {
 int proc_upgrade_queue(pid_t proc_pid){
     // check pid is valid
     struct task_struct* proc_moving;
-    proc_moving = find_task_by_pid(pid);
+    proc_moving = find_task_by_pid(proc_pid);
     if (proc_moving==NULL){
-        printk("UPGRADE: PID %d isn't found on queue %s\n",proc_pid,queue);
+      //  printk("UPGRADE: PID %d isn't found on queue %s\n",proc_pid,queue);
         return -EFAULT;
     }
     printk("UPGRADE: pull pid %d from queue\n",proc_pid);
 
     dequeue_task_ext(proc_moving, proc_moving->array);
+
     // change the task's properties
     // change permission
     proc_moving->is_privileged=1;
@@ -94,10 +95,11 @@ int proc_upgrade_queue(pid_t proc_pid){
 
     printk("UPGRADE: push pid %d from queue\n",proc_pid);
     enqueue_task_ext(proc_moving, proc_moving->array);
+
     // increment counter
     set_privileged_procs_count(1);
 
-    printk("UPGRADE: migration of %d is done\n",task_pointer->pid );
+   // printk("UPGRADE: migration of %d is done\n",task_pointer->pid );
     return set_privileged_procs_count(0);
 }
 
@@ -121,17 +123,17 @@ int set_privileged_procs_count(int change) {
 
 
 
-task_t check_queue_for_senior_process(task_t a_task) {
+task_t* check_queue_for_senior_process(list_t priv_list) {
 
     long min_jiffies=-1; // holds the current min while scanning
     task_t * senior_proc;
     int flag_first=0;
 
     list_t *pos;
-    list_for_each(pos, &a_task)
+    list_for_each(pos, &priv_list)
     {
         task_t *pid_task_struct;
-        pid_task_struct = list_entry(pos, struct runqueue, list_pointer); // returns pointer to struct
+        pid_task_struct = list_entry(pos, task_t , run_list); // returns pointer to struct
 
         // case it's the first item, set the current min to it
         if(flag_first==0){ //first item in list
@@ -164,7 +166,7 @@ int kill_inheritance_logic(task_t* sender, task_t* receiver){
     if (sender->is_privileged==0 && receiver->is_privileged==1){
         printk("kill_inheritance_logic: A.P==0&&B.P==1. A.P=B.P=1\n");
         //
-        proc_upgrade_queue(sender->pid)
+        proc_upgrade_queue(sender->pid);
         // receiver will make exit() as any regular process.
         return 1;
     }

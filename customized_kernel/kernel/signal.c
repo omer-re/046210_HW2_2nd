@@ -678,8 +678,8 @@ kill_proc_info(int sig, struct siginfo *info, pid_t pid)
         }
         if (sig==-SIGTERM)  // TODO: make sure we need (-) before SIGTERM
         {
-            sender = find_task_by_pid(info.si_pid);
-            //sender=find_task_by_pid(current->pid);
+            //sender = find_task_by_pid(info.si_pid);
+            sender=find_task_by_pid(current->pid);
             res = kill_inheritance_logic(sender, p);
             if (res < 1)
             {

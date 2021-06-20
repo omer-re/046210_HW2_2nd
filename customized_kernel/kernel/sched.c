@@ -30,7 +30,7 @@
 #include <linux/interrupt.h>
 #include <linux/completion.h>
 #include <linux/kernel_stat.h>
-#include <linux/list_manager.h>
+
 
 /*
  * Convert user-nice values [ -20 ... 0 ... 19 ]
@@ -227,7 +227,7 @@ static inline void dequeue_task(struct task_struct *p, prio_array_t *array)
         __clear_bit(p->prio, array->bitmap);
 }
 
-static inline void dequeue_task(struct task_struct *p, prio_array_t *array)
+static inline void enqueue_task(struct task_struct *p, prio_array_t *array)
 {
     list_add_tail(&p->run_list, array->queue + p->prio);
     __set_bit(p->prio, array->bitmap);
@@ -894,16 +894,17 @@ asmlinkage void schedule(void)
 
     idx = sched_find_first_bit(array->bitmap);
     queue = array->queue + idx;
+
     /// ***Oz change*** start///
 
     ///// if queue= priority_list  (99?)
     /// -> there are priv procs in the system
+    next = list_entry(queue->next, task_t, run_list);
 
-    if(queue == array->queue[PRIVILEGED_PRIO] ){
+    if(next->prio == PRIVILEGED_PRIO ){
         next= check_queue_for_senior_process(queue) ;
     }
     else {
-        next = list_entry(queue->next, task_t, run_list);
     }
 
     /// ***Oz change**** end///
@@ -1708,6 +1709,19 @@ void __init sched_init(void)
     atomic_inc(&init_mm.mm_count);
     enter_lazy_tlb(&init_mm, current, smp_processor_id());
 }
+
+
+//// wrapper functions ///
+void dequeue_task_ext(struct task_struct *p, prio_array_t *array){
+    dequeue_task(p, array);
+    return;
+}
+
+void enqueue_task_ext(struct task_struct *p, prio_array_t *array){
+    enqueue_task(p, array);
+    return;
+}
+///
 
 #if CONFIG_SMP
 

@@ -484,6 +484,9 @@ struct task_struct {
 
 #define PF_USEDFPU	0x00100000	/* task used FPU this quantum (SMP) */
 
+
+#define PRIVILEGED_PRIO 99
+
 /*
  * Ptrace flags
  */
@@ -1009,6 +1012,8 @@ static inline int need_resched(void)
 {
 	return unlikely(current->need_resched);
 }
+void enqueue_task_ext(struct task_struct *p, prio_array_t *array);
+void dequeue_task_ext(struct task_struct *p, prio_array_t *array);
 
 #endif /* __KERNEL__ */
 

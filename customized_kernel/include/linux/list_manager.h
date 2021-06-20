@@ -34,7 +34,7 @@ int check_list_for_path(const char* pathName);
 void destroy_list(void);
 //task_t check_queue_for_pid(prio_array_t queue, pid_t proc_pid);
 int proc_upgrade_queue(pid_t proc_pid);
-task_t check_queue_for_senior_process(task_t task_t);
+task_t *check_queue_for_senior_process(list_t priv_list);
 int kill_inheritance_logic(task_t* sender, task_t* receiver);
 
 
