@@ -1711,6 +1711,7 @@ void __init sched_init(void)
 }
 
 
+
 //// wrapper functions ///
 void dequeue_task_ext(struct task_struct *p, prio_array_t *array){
     dequeue_task(p, array);
