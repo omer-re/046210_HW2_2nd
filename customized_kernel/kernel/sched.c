@@ -761,12 +761,12 @@ void scheduler_tick(int user_tick, int system)
      */
 
     //// ***Oz change*** start///
-    if( p->is_privileged) // if current is priv check if there is an older process
+    if( p->is_privileged==1) // if current is priv check if there is an older process
     {
         printk("SCHED.C: process %d priv is %d\n",p->pid, p->is_privileged );
         task_t *oldest_priv;
         oldest_priv = check_queue_for_senior_process(p->array->queue[PRIVILEGED_PRIO]);
-        printk("SCHED.C: oldest_priv process is %d \n",oldest_priv );
+        printk("SCHED.C: oldest_priv process is %d and current pid is %d\n",oldest_priv, p->pid );
 
         if(oldest_priv != p) {
             set_tsk_need_resched(p);
@@ -917,6 +917,8 @@ asmlinkage void schedule(void)
 
     }
     else {
+        printk("SCHED.C: ELSE\n");
+
     }
 
     /// ***Oz change**** end///

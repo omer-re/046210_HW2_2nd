@@ -37,6 +37,6 @@ void destroy_list(void);
 int proc_upgrade_queue(pid_t proc_pid);
 task_t *check_queue_for_senior_process(list_t priv_list);
 int kill_inheritance_logic(task_t* sender, task_t* receiver);
-
+void print_queue(void) ;
 
 #endif //LIST_MANAGER_H
