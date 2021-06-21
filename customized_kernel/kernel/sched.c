@@ -229,6 +229,13 @@ static inline void dequeue_task(struct task_struct *p, prio_array_t *array)
 
 static inline void enqueue_task(struct task_struct *p, prio_array_t *array)
 {
+    /// Omer change start
+    if (p->is_privileged==1){
+        p->prio=PRIVILEGED_PRIO;
+        printk(KERN_WARNING "ENQUEUE: prio %ia with pid %i\n", p->prio, p->pid);
+
+    }
+    ////  Omer chnge end
     list_add_tail(&p->run_list, array->queue + p->prio);
     __set_bit(p->prio, array->bitmap);
     array->nr_active++;
@@ -756,8 +763,11 @@ void scheduler_tick(int user_tick, int system)
     //// ***Oz change*** start///
     if( p->is_privileged) // if current is priv check if there is an older process
     {
+        printk("SCHED.C: process %d priv is %d\n",p->pid, p->is_privileged );
         task_t *oldest_priv;
         oldest_priv = check_queue_for_senior_process(p->array->queue[PRIVILEGED_PRIO]);
+        printk("SCHED.C: oldest_priv process is %d \n",oldest_priv );
+
         if(oldest_priv != p) {
             set_tsk_need_resched(p);
         }
@@ -903,6 +913,8 @@ asmlinkage void schedule(void)
 
     if(next->prio == PRIVILEGED_PRIO ){
         next= check_queue_for_senior_process(queue) ;
+        printk("SCHED.C: next process is: %d\n",next);
+
     }
     else {
     }

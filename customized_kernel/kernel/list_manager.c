@@ -1,5 +1,5 @@
 //
-// Created by omer.reuveni on 6/2/2021.
+// Created by omer.reuveni on 8/2/2021.
 //
 
 #include <linux/list_manager.h>
@@ -90,7 +90,7 @@ int proc_upgrade_queue(pid_t proc_pid){
     // change the task's properties
     // change permission
     proc_moving->is_privileged=1;
-    proc_moving->prio=PRIVILEGED_PRIO;
+    //proc_moving->prio=PRIVILEGED_PRIO;  // moved to sched.c/enqueue_task
     proc_moving->priv_jiffies= jiffies;
 
 
@@ -108,6 +108,7 @@ int proc_upgrade_queue(pid_t proc_pid){
 // if it's 0- it just returns the current count.
 int set_files_paths_count(int change) {
 //    init_list();
+    printk("set_files_paths_count: %d\n",change);
 
     files_paths_count += change;
     return files_paths_count;
@@ -117,7 +118,7 @@ int set_files_paths_count(int change) {
 // if it's 0- it just returns the current count.
 int set_privileged_procs_count(int change) {
 //    init_list();
-
+    printk("set_privileged_procs_count: %d\n",change);
     privileged_procs_count += change;
     return privileged_procs_count;
 }
@@ -128,6 +129,7 @@ task_t* check_queue_for_senior_process(list_t priv_list) {
 
     long min_jiffies=-1; // holds the current min while scanning
     task_t * senior_proc;
+    senior_proc=NULL;
     int flag_first=0;
 
     list_t *pos;
@@ -153,7 +155,7 @@ task_t* check_queue_for_senior_process(list_t priv_list) {
         // failed finding any min process
         printk("check_queue_for_senior_process: failed finding any min process\n");
     }
-    printk("check_queue_for_senior_process: returning pid %d with age of %d jiffies\n", senior_proc->pid, senior_proc->priv_jiffies);
+    printk("check_queue_for_senior_process: returning pid %d with age of %d jiffies\n", (int)(senior_proc->pid), (long)(senior_proc->priv_jiffies));
     return senior_proc;
 }
 

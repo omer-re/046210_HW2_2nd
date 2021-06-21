@@ -790,9 +790,10 @@ int do_fork(unsigned long clone_flags, unsigned long stack_start,
         set_privileged_procs_count(1);
         p->is_privileged=1;
         p->prio=PRIVILEGED_PRIO;
-        p->priv_jiffies= jiffies;
-        // TODO: should it be added manually to queue or is it automatically goes to prio?
         // set new_jiffies to current time
+        p->priv_jiffies= jiffies;
+        printk("fork: DONE \n" );
+
     }
     ////////   END OF OMER AND OZ CHANGE     /////////
 

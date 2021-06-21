@@ -101,6 +101,13 @@ int sys_block_add_process(pid_t pid) {
     {
         printk("sys_block_add_process: current is NULL\n");
     }
+
+//    struct task_struct* pid_task;
+//    pid_task = find_task_by_pid(pid);
+//    if (pid_task->array->bitmap[99]){
+//        printk("sys_block_add_process: array->bitmap[99] is %d\n",(pid_task->array->bitmap[99]));
+//    }
+
     if (current->is_privileged == 1)
     {
         task_t *pid_itt;
@@ -124,17 +131,21 @@ int sys_block_add_process(pid_t pid) {
         // case of none privileged process, but no privileged processes
     else if (current->is_privileged == 0)
     {
-        printk("sys_block_add_process: LINE 110\n");
+        printk("sys_block_add_process: LINE 127\n");
 
         // check if privileged_procs_count==0
         // if (privileged_procs_count==0){
         if (set_privileged_procs_count(0) == 0)
         {
+            printk("sys_block_add_process: LINE 133\n");
+
             //      if true: allow operation
             task_t *pid_itt;
             pid_itt = find_task_by_pid(pid);
+            printk("sys_block_add_process: LINE 138\n");
             pid_itt->is_privileged = 1;
             set_privileged_procs_count(1);
+            printk("sys_block_add_process: LINE 141\n");
             printk("sys_block_add_process: operation allowed due to no other privileged procs %d (should be 1)\n",
                    set_privileged_procs_count(0));
             return (set_privileged_procs_count(0));
