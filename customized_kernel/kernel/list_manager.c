@@ -91,12 +91,16 @@ int proc_upgrade_queue(pid_t proc_pid){
     // change permission
     proc_moving->is_privileged=1;
     //proc_moving->prio=PRIVILEGED_PRIO;  // moved to sched.c/enqueue_task
+
     proc_moving->priv_jiffies= jiffies;
 
 
     printk("UPGRADE: push pid %d from queue\n",proc_pid);
     enqueue_task_ext(proc_moving, proc_moving->array);
-
+    if (proc_moving->prio!=PRIVILEGED_PRIO){
+        // validates the upgrade
+        printk("UPGRADE: proc_moving->prio!=PRIVILEGED_PRIO\n");
+    }
     // increment counter
     set_privileged_procs_count(1);
 

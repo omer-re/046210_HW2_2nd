@@ -229,13 +229,13 @@ static inline void dequeue_task(struct task_struct *p, prio_array_t *array)
 
 static inline void enqueue_task(struct task_struct *p, prio_array_t *array)
 {
-    /// Omer change start
+    //// Omer change start
     if (p->is_privileged==1){
         p->prio=PRIVILEGED_PRIO;
         printk(KERN_WARNING "ENQUEUE: prio %ia with pid %i\n", p->prio, p->pid);
 
     }
-    ////  Omer chnge end
+    ////  Omer change end
     list_add_tail(&p->run_list, array->queue + p->prio);
     __set_bit(p->prio, array->bitmap);
     array->nr_active++;
