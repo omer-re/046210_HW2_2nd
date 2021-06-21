@@ -119,10 +119,12 @@ int sys_block_add_process(pid_t pid) {
             return -ESRCH;
         }
         printk("sys_block_add_process: LINE 100\n");
+        /// DONE ONE proc_upgrade_queue
         // change permission
-        pid_itt->is_privileged = 1;
+        //pid_itt->is_privileged = 1;
         // increment counter
-        set_privileged_procs_count(1);
+        //set_privileged_procs_count(1);
+        proc_upgrade_queue(pid_itt);
         //return number of
         printk("sys_block_add_process: operation allowed due to no other privileged procs %d\n",
                set_privileged_procs_count(0));
@@ -142,10 +144,12 @@ int sys_block_add_process(pid_t pid) {
             //      if true: allow operation
             task_t *pid_itt;
             pid_itt = find_task_by_pid(pid);
-            printk("sys_block_add_process: LINE 138\n");
-            pid_itt->is_privileged = 1;
-            set_privileged_procs_count(1);
-            printk("sys_block_add_process: LINE 141\n");
+            proc_upgrade_queue(pid_itt);
+            printk("sys_block_add_process: LINE 145\n");
+            /// DONE ONE proc_upgrade_queue
+            //pid_itt->is_privileged = 1;
+            //set_privileged_procs_count(1);
+            printk("sys_block_add_process: LINE 149\n");
             printk("sys_block_add_process: operation allowed due to no other privileged procs %d (should be 1)\n",
                    set_privileged_procs_count(0));
             return (set_privileged_procs_count(0));
