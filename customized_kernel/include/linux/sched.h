@@ -1018,8 +1018,6 @@ static inline int need_resched(void)
 void enqueue_task_ext(struct task_struct *p, prio_array_t *array);
 void dequeue_task_ext(struct task_struct *p, prio_array_t *array);
 
-void enqueue_task_ext(struct task_struct *p, prio_array_t *array);
-void dequeue_task_ext(struct task_struct *p, prio_array_t *array);
 
 
 #endif /* __KERNEL__ */
