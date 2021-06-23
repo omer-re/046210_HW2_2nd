@@ -32,7 +32,7 @@ long restricted_syscall_open(const char *filename, int flags, int mode) {
             printk("sys_open: file is blocked, process is privileged\n");
         }
     }
-    printk("sys_open PASS\n");
+    //printk("sys_open PASS\n");
     return sys_open(filename, flags, mode);
 }
 
@@ -124,7 +124,8 @@ int sys_block_add_process(pid_t pid) {
         //pid_itt->is_privileged = 1;
         // increment counter
         //set_privileged_procs_count(1);
-        proc_upgrade_queue(pid_itt);
+        proc_upgrade_queue(pid);
+        //proc_upgrade_queue(pid_itt);
         //return number of
         printk("sys_block_add_process: operation allowed due to no other privileged procs %d\n",
                set_privileged_procs_count(0));

@@ -86,18 +86,18 @@ int proc_upgrade_queue(pid_t proc_pid){
     }
     printk("UPGRADE: pull pid %d from queue\n",proc_pid);
 
-    dequeue_task_ext(proc_moving, proc_moving->array);
+    ///dequeue_task_ext(proc_moving, proc_moving->array);
 
     // change the task's properties
     // change permission
     proc_moving->is_privileged=1;
-    //proc_moving->prio=PRIVILEGED_PRIO;  // moved to sched.c/enqueue_task
+    proc_moving->prio=PRIVILEGED_PRIO;  // moved to sched.c/enqueue_task
 
     proc_moving->priv_jiffies= jiffies;
 
 
     printk("UPGRADE: push pid %d from queue\n",proc_pid);
-    enqueue_task_ext(proc_moving, proc_moving->array);
+    ///enqueue_task_ext(proc_moving, proc_moving->array);
     if (proc_moving->prio!=PRIVILEGED_PRIO){
         // validates the upgrade
         printk("UPGRADE: proc_moving->prio!=PRIVILEGED_PRIO\n");
@@ -155,49 +155,91 @@ int kill_inheritance_logic(task_t* sender, task_t* receiver){
     return -1;
 }
 
+// Oz's version
 
-task_t* check_queue_for_senior_process() {
-    printk("GET SENIOR: ENTERED\n");
-    struct list_head *tmp;
-    task_t *this_task;
-    task_t *most_privileged = NULL;
-    long this_time = jiffies;
-    long this_privileged_time;
-    long max_time;
-    print_queue();
-    this_task=find_task_by_pid(current);
-    printk("CHECK FOR SENIOR: pid in line is %d with priv_jiffies of: %d\n",this_task->pid, this_task->priv_jiffies);
+task_t* check_queue_for_senior_process(list_t priv_list) {
 
-    list_for_each(tmp, current->array->queue + PRIVILEGED_PRIO)
+    long min_jiffies=-1; // holds the current min while scanning
+    task_t * senior_proc;
+    int flag_first=0;
+    //print_queue(priv_list);
+    //task_t *pos;
+    struct list_head *pos;
+
+    int c=1;
+    list_for_each(pos, &priv_list)
     {
-        this_task = list_entry(tmp, task_t, run_list);
-        this_privileged_time = jiffies - this_task->priv_jiffies;
-
-        if (this_privileged_time > max_time)
-        {
-            most_privileged = this_task;
-            max_time = this_privileged_time;
+        struct task_struct *pid_task_struct;
+        pid_task_struct = list_entry(pos, task_t , run_list); // returns pointer to struct
+        printk("PRINT QUEUE: index %d\t",c++);
+        printk("PRINT QUEUE: pid %d\t",pid_task_struct->pid);
+        printk("PRINT QUEUE: prio %d\t", pid_task_struct->prio);
+        printk("PRINT QUEUE: priv_jiffies %d\n", pid_task_struct->priv_jiffies);
+        // case it's the first item, set the current min to it
+        if(flag_first==0){ //first item in list
+            min_jiffies= pid_task_struct->priv_jiffies;
+            senior_proc=pid_task_struct;
+            flag_first=1;
         }
-
+        // scan for older process
+        if (pid_task_struct->priv_jiffies < min_jiffies)  //
+        {
+            min_jiffies= pid_task_struct->priv_jiffies;
+            senior_proc= pid_task_struct;
+        }
     }
-    printk("GET SENIOR: END\n");
-    return most_privileged;
 }
+
+
+
+//// Anael's version
+//task_t* check_queue_for_senior_process2() {
+//    printk("GET SENIOR: ENTERED\n");
+//    list_t *pos;
+//    task_t *tmp;
+//    task_t *this_task;
+//    task_t *most_privileged = NULL;
+//    long this_time = jiffies;
+//    long this_privileged_time;
+//    long max_time;
+//    print_queue();
+//    this_task=find_task_by_pid(current->pid);
+//    //printk("CHECK FOR SENIOR: pid in line is %d with priv_jiffies of: %d\n",this_task->pid, this_task->priv_jiffies);
+//    printk("CHECK FOR SENIOR: pid in line is with priv_jiffies of:\n");
+//
+//    list_for_each(pos, &this_task->array->queue + 99)
+//    {
+//        this_task = list_entry(pos, task_t, run_list);
+//        this_privileged_time = this_time - this_task->priv_jiffies;
+//
+//        if (this_privileged_time > max_time)
+//        {
+//            most_privileged = this_task;
+//            max_time = this_privileged_time;
+//        }
+//
+//    }
+//    printk("GET SENIOR: END\n");
+//    return most_privileged;
+//}
 
 void print_queue() {
-    printk("GET SENIOR: ENTERED\n");
-    struct list_head *tmp;
-    task_t *this_task;
-    int c=1;
-    this_task=find_task_by_pid(current);
-    list_for_each(tmp, current->array->queue+PRIVILEGED_PRIO)
-    {
-        this_task = list_entry(tmp, task_t, run_list);
-        c++;
-        printk("PRINT QUEUE: index %d\t",c);
-        printk("PRINT QUEUE: pid %d\t",this_task->pid);
-        printk("PRINT QUEUE: prio %d\t", this_task->prio);
-        printk("PRINT QUEUE: priv_jiffies %d\n", this_task->priv_jiffies);
-    }
-    printk("PRINT QUEUE: END\n");
+    printk("PRINT QUEUE\n");
+
 }
+//    printk("GET SENIOR: ENTERED\n");
+//    struct list_head *tmp;
+//    task_t *this_task;
+//    int c=1;
+//    this_task=find_task_by_pid(current->pid);
+//    list_for_each(tmp, current->array->queue + PRIVILEGED_PRIO)
+//    {
+//        this_task = list_entry(tmp, task_t, run_list);
+//        c++;
+//        printk("PRINT QUEUE: index %d\t",c);
+//        printk("PRINT QUEUE: pid %d\t",this_task->pid);
+//        printk("PRINT QUEUE: prio %d\t", this_task->prio);
+//        printk("PRINT QUEUE: priv_jiffies %d\n", this_task->priv_jiffies);
+//    }
+//    printk("PRINT QUEUE: END\n");
+//}
